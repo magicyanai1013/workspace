@@ -62,7 +62,7 @@
 </head>
 <body class="text-center">
     <!-- header -->
-    <div th:replace="~{Customer_Service/html/Header}"></div>
+    <div th:replace="~{Customer_Service/html/saHeader}"></div>
 
     <!-- 聯絡我們區塊 -->
     <div class="container-gray">
@@ -74,11 +74,9 @@
                 <div class="form-floating mb-3">
                     <select class="form-select" id="CSFormSort" name="CSFormSort" required>
                         <option value="" selected disabled>選擇問題分類</option>
-                        <option value="帳號相關">帳號相關</option>
-                        <option value="平台守則">平台守則</option>
-                        <option value="買家相關">買家相關</option>
-                        <option value="賣家相關">賣家相關</option>
-                        <option value="其他問題">其他問題</option>
+                        <option value="general">一般問題</option>
+                        <option value="technical">技術支援</option>
+                        <option value="billing">帳單問題</option>
                     </select>
                     <label for="CSFormSort">問題分類</label>
                 </div>             
@@ -95,16 +93,16 @@
                     <label for="CSFormContent">輸入問題內容 (300字以內)</label>
                 </div>
 
-                <button class="w-100 btn btn-lg btn-warning" type="submit" >送出</button>
+                <button class="w-100 btn btn-lg btn-warning" type="submit" value="提交"></button>
             </form>
         </main>
     </div>
 
     <!-- 感謝消息區域 -->
     <div id="thankYouMessage" style="display: none; color: green; margin-top: 20px;">
-        感謝您的提交！我們會儘快與您聯繫，後續回覆會寄至訊息中心。
+        感謝您的提交！我們會儘快與您聯繫。
     </div>
-    
+
     <!-- footer -->
     <div th:replace="~{Customer_Service/html/footer}"></div>
 
@@ -113,31 +111,8 @@
     <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 
     <script>
-	$(document).ready(function () {
-	    $('#contactForm').on('submit', function (e) {
-	        e.preventDefault(); // 阻止表單預設行為
 
-	        $.ajax({
-	            type: 'POST',
-	            url: $(this).attr('action'), // 從表單的 action 屬性取得 URL
-	            data: $(this).serialize(), // 將表單序列化為字串
-	            success: function () {
-	                // 顯示感謝消息
-	                $('#thankYouMessage').fadeIn();
-	
-	                // 清空表單
-	                $('#contactForm')[0].reset();
-	
-	                // 5 秒後隱藏感謝消息
-	                setTimeout(() => $('#thankYouMessage').fadeOut(), 5000);
-	            },
-	            error: function () {
-	                alert('提交失敗，請稍後再試！');
-	            },
-	        });
-	    });
-	});
-	</script>
-	
+    </script>
+    
 </body>
 </html>

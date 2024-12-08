@@ -37,15 +37,11 @@ CREATE TABLE CSForm (
 -- 新增5筆資料
 INSERT INTO CSForm (CSFormSort, CSFormTitle, CSFormContent, CSformDate, CSformChack)
 VALUES
-    ('帳號相關', '如何重設密碼？', '請問我該如何重設我的密碼？', GETDATE(), 1),
-    ('帳號相關', '系統無法登入', '我無法登入我的帳戶，該怎麼辦？', GETDATE(), 0),
-    ('帳號相關', '收不到帳單', '為什麼我沒有收到我的帳單？', GETDATE(), 1),
-    ('其他問題', '建議新功能', '我希望能夠增加一個新功能，讓使用者能夠更方便地使用系統。', GETDATE(), 1),
-    ('其他問題', '客服聯絡方式', '請問客服的聯絡方式是什麼？', GETDATE(), 0);
+    ('一般問題', '如何重設密碼？', '請問我該如何重設我的密碼？', GETDATE(), 1),
+    ('技術支援', '系統無法登入', '我無法登入我的帳戶，該怎麼辦？', GETDATE(), 0),
+    ('帳單問題', '收不到帳單', '為什麼我沒有收到我的帳單？', GETDATE(), 1),
+    ('使用者反饋', '建議新功能', '我希望能夠增加一個新功能，讓使用者能夠更方便地使用系統。', GETDATE(), 1),
+    ('其他', '客服聯絡方式', '請問客服的聯絡方式是什麼？', GETDATE(), 0);
 
 	select * from CSQAData;
 	select * from CSForm;
-
-	--清空資料表
-	TRUNCATE TABLE CSForm
-	TRUNCATE TABLE CSQAData

@@ -28,45 +28,13 @@
                         <th style="width:20%">問題內容</th>
                         <th style="width:15%">提交時間</th>
                         <th style="width:10%">目前狀態</th>
-                        <th style="width:15%">回覆</th>
+                        <th style="width:15%">操作</th>
                     </tr>
                 </thead>
                 <tbody id="listform">
                     <!-- 資料將通過 JavaScript 動態插入 -->
                 </tbody>
             </table>
-        </div>
-    </div>
-    
-     <!-- 回覆視窗 -->
-    <div class="modal fade" id="replyModal" tabindex="-1" aria-labelledby="replyModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="replyModalLabel">回覆表單</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="replyForm">
-                        <input type="hidden" id="formId">
-                        <div class="mb-3">
-                            <label for="replyContent" class="form-label">回覆內容</label>
-                            <textarea class="form-control" id="replyContent" rows="3"></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="statusSelect" class="form-label">目前狀態</label>
-                            <select class="form-control" id="statusSelect">
-                                <option value="1">已完成</option>
-                                <option value="0">待處理</option>
-                            </select>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
-                    <button type="button" class="btn btn-primary" onclick="submitReply()">送出</button>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -76,72 +44,39 @@
     <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <script>
         $(document).ready(function () {
-            // 從後端獲取 JSON 資料
-            $.ajax({
-                url: "http://localhost:8080/form_manage/json", // API 的 URL
-                method: "GET",
-                success: function (data) {
-                    // 將資料動態插入到表格中
-                    let tableBody = $("#listform");
-                    tableBody.empty(); // 清空表格內容
+    // 從後端獲取 JSON 資料
+    $.ajax({
+        url: "http://localhost:8080/form_manage/json", // API 的 URL
+        method: "GET",
+        success: function (data) {
+            // 將資料動態插入到表格中
+            let tableBody = $("#listform");
+            tableBody.empty(); // 清空表格內容
 
-                    data.forEach(form => {
-                        const status = form.csformChack === 1 ? "已完成" : "待處理";
-                        const row = `
-                            <tr>
-                                <td>${form.csformId}</td>
-                                <td>${form.csformSort}</td>
-                                <td>${form.csformTitle}</td>
-                                <td>${form.csformContent}</td>
-                                <td>${form.csformDate}</td>
-                                <td>${status}</td>
-                                <td>
-                                    <button class="btn btn-success btn-sm" onclick="openReplyModal(${form.csformId}, '${form.csformChack}')">回覆</button>
-                                </td>
-                            </tr>
-                        `;
-                        tableBody.append(row);
-                    });
-                },
-                error: function (error) {
-                    console.error("無法取得資料", error);
-                }
-            });
-        });
+            data.forEach(form => {
+    const status = form.csformChack === 1 ? "已完成" : "待處理";
+    const row = `
+        <tr>
+            <td>${form.csformId}</td>
+            <td>${form.csformSort}</td>
+            <td>${form.csformTitle}</td>
+            <td>${form.csformContent}</td>
+            <td>${form.csformDate}</td>
+            <td>${status}</td>
+            <td>
+                <button class="btn btn-success btn-sm">操作</button>
+            </td>
+        </tr>
+    `;
+    $("#listform").append(row);
+});
 
-        // 開啟回覆視窗並填充資料
-        function openReplyModal(formId, currentStatus) {
-            $("#formId").val(formId);
-            $("#statusSelect").val(currentStatus);
-            $("#replyModal").modal("show");
+        },
+        error: function (error) {
+            console.error("無法取得資料", error);
         }
-
-        // 送出回覆並更新狀態
-        function submitReply() {
-            const formId = $("#formId").val();
-            const replyContent = $("#replyContent").val();
-            const status = $("#statusSelect").val();
-
-            // 使用 AJAX 發送回覆內容和狀態更新到後端
-            $.ajax({
-                url: "http://localhost:8080/form_manage/submitReply", // 更新回覆的 API
-                method: "POST",
-                data: {
-                    formId: formId,
-                    replyContent: replyContent,
-                    status: status
-                },
-                success: function (response) {
-                    console.log("回覆成功");
-                    // 關閉回覆視窗並重新載入表格
-                    $("#replyModal").modal("hide");
-                    location.reload();
-                },
-                error: function (error) {
-                    console.error("回覆失敗", error);
-                }
-            });
-        }
+    });
+});
     </script>
 </body>
 </html>
