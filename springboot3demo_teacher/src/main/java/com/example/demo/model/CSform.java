@@ -47,16 +47,24 @@ public class CSform {
     @Column(name = "CSFormContent", nullable = false)
     private String CSFormContent;
     // 用於儲存文章內容
-
-    // 使用 @DateTimeFormat 來指定日期格式，@Temporal 來指定資料庫中的時間型態
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8") // Restful API的時間格式
+    
+    
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone="GMT+8") // 只顯示日期，不顯示時間
+    @Column(name = "CSFormDate")
+    @Temporal(TemporalType.DATE)  // 設定為日期型態
     private Date CSFormDate;
     // 用於儲存文章建立的日期與時間
-
+    
     // 指定 "CSformChack" 欄位，不可為空值
-    @Column(name = "CSformChack")
-    private Integer CSformChack;
+    @Column(name = "CSFormChack")
+    private Integer CSFormChack;
     // 用於儲存文章的狀態（例如：0 表示未審核，1 表示已發布）
+    
+    // 指定 "CSFormContent" 欄位，不可為空值
+    @Column(name = "CSFormReply")
+    private String CSFormReply;
+    // 用於儲存回覆內容
+    
 
     // 以下是 getter 和 setter 方法，用於取得和設定屬性值
 
@@ -100,12 +108,20 @@ public class CSform {
         this.CSFormDate = cSFormDate;
     }
 
-    public Integer getCSformChack() {
-        return CSformChack;
+    public Integer getCSFormChack() {
+        return CSFormChack;
     }
 
-    public void setCSformChack(Integer cSformChack) {
-        this.CSformChack = cSformChack;
+    public void setCSFormChack(Integer cSFormChack) {
+        this.CSFormChack = cSFormChack;
+    }
+    
+    public String getCSFormReply() {
+        return CSFormReply;
+    }
+
+    public void setCSFormReply(String cSFormReply) {
+        this.CSFormReply = cSFormReply;
     }
 
 	public static void addAttribute(String string, List<CSform> csForms) {

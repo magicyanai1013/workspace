@@ -1,8 +1,11 @@
 package com.example.demo.Controller;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,13 +40,15 @@ public class CSformController {
     public String csform() {
         return "Customer_Service/form";
     }
-    
+     
 //  新增表單資料 (http://localhost:8080/form_manage/formadd)
     @PostMapping("/form_manage/formadd")
-    public String addform(String CSFormSort,String CSFormTitle,String CSFormContent) {
-    	csfs.addform(CSFormSort,CSFormTitle,CSFormContent);
+    public String addform(String CSFormSort,String CSFormTitle,String CSFormContent,Date CSFormDate) {
+    	csfs.addform(CSFormSort,CSFormTitle,CSFormContent,CSFormDate);
     	return "Customer_Service/form";
     }
+    
+    
 
     // 取得所有表單資料，回傳 JSON 格式 (http://localhost:8080/form_manage/json)
     @GetMapping("/form_manage/json")
@@ -51,24 +56,30 @@ public class CSformController {
     public List<CSform> getform_manageJson() {
         return CSformRepository.findAll();
     }
-    
-
-    // 處理表單資料更新 (PUT 請求，URL: http://localhost:8080/form_manage/json/{CSFormId})
-    @PutMapping("/form_manage/json/{CSFormId}")
+      
+    @PostMapping("/submitReply")
     @ResponseBody
-    public String updateFormStatus(@PathVariable("CSFormId") Integer CSFormId, @RequestBody CSform updatedForm) {
-        // 查詢資料庫中的表單
+    public ResponseEntity<String> submitReply(@RequestParam Integer CSFormId, @RequestParam String CSFormReply, @RequestParam Integer CSFormChack) {
+        // 處理邏輯
+        System.out.println("收到的 formId：" + CSFormId);
+        System.out.println("回覆內容：" + CSFormReply);
+        System.out.println("狀態：" + CSFormChack);
+        
+        // 假設你這裡是根據表單 ID 更新表單的回覆和狀態
         CSform existingForm = CSformRepository.findByCSFormId(CSFormId);
         
         if (existingForm != null) {
-            // 更新表單的狀態
-            existingForm.setCSformChack(updatedForm.getCSformChack());
-            
-            // 儲存更新後的表單資料
+            existingForm.setCSFormReply(CSFormReply);
+            existingForm.setCSFormChack(CSFormChack);
             CSformRepository.save(existingForm);
-            return "成功更新表單資料";
+            return ResponseEntity.ok("回覆成功");
         } else {
-            return "找不到該表單";
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("找不到該表單");
         }
     }
+
+    
+
 }
+
+

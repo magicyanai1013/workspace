@@ -10,6 +10,8 @@ public class CS_Controller {
     @GetMapping("/CSFrontpage")
     public String showCSFrontpage() {
         return "Customer_Service/CSFrontpage";
-    }    
+    }
+    
+    
     
 }

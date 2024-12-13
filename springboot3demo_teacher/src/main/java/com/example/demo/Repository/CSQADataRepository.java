@@ -10,6 +10,6 @@ import com.example.demo.model.CSQAData;
 public interface CSQADataRepository extends JpaRepository<CSQAData, Integer> {
 
     // 自定義查詢方法，根據 CSFormId（使用字串型態）來查找對應的 CSForm 實體
-	CSQAData findByCSQADataid(Integer CSQADataid);
+	CSQAData findByCSQADataId(Integer CcSQADataId);
 	
 }
