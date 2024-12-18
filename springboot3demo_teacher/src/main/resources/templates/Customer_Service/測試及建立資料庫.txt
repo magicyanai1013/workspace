@@ -1,0 +1,51 @@
+-- 建立資料庫 ChiikawaGame
+CREATE DATABASE ChiikawaGame;
+
+-- 使用 ChiikawaGame 資料庫
+USE ChiikawaGame;
+
+-- 建立 CSQA 表格
+CREATE TABLE CSQAData (
+    CSQADataid INT PRIMARY KEY IDENTITY(1,1), -- 主鍵，自動增量
+    CSQADataSort NVARCHAR(30),                -- 分類
+    CSQADataTitle NVARCHAR(30),               -- 標題
+    CSQADataContent NVARCHAR(300),            -- 內容
+    CSQADataDATE Date DEFAULT GETDATE(),      -- 最後修改日期，預設為當前日期
+    CSQADataChack INT                          -- 上架狀態（0=未上架，1=已上架）
+);
+
+-- 新增5筆資料
+INSERT INTO CSQAData (CSQADataSort, CSQADataTitle, CSQADataContent, CSQADataDATE, CSQADataChack)
+VALUES
+    ('一般問題', '如何重設密碼？123', '請問我該如何重設我的密碼123？', GETDATE(), 1),
+    ('技術支援', '系統無法登入123', '我無法登入我的帳戶，該怎123麼辦？', GETDATE(), 0),
+    ('帳單問題', '收不到帳單123', '為什麼我沒有收到我的帳單？123', GETDATE(), 1),
+    ('使用者反饋', '建議新功能123', '我希望能夠增加一個新功能123，讓使用者能夠更方便地使用系統123。', GETDATE(), 1),
+    ('其他', '客服聯絡方式123', '請問客服的聯絡方式是什麼？123', GETDATE(), 0);
+
+
+-- 建立 CSForm 表格
+CREATE TABLE CSForm (
+    CSformid INT PRIMARY KEY IDENTITY(1,1), -- 主鍵，自動增量
+    CSFormSort NVARCHAR(30),                -- 問題分類
+    CSFormTitle NVARCHAR(30),               -- 問題標題
+    CSFormContent NVARCHAR(300),            -- 問題內容
+    CSformDate DATE DEFAULT GETDATE(),      -- 建立日期，預設為當前日期
+    CSformChack INT                          -- 問題狀態（0=未審核，1=已審核）
+);
+
+-- 新增5筆資料
+INSERT INTO CSForm (CSFormSort, CSFormTitle, CSFormContent, CSformDate, CSformChack)
+VALUES
+    ('帳號相關', '如何重設密碼？', '請問我該如何重設我的密碼？', GETDATE(), 1),
+    ('帳號相關', '系統無法登入', '我無法登入我的帳戶，該怎麼辦？', GETDATE(), 0),
+    ('帳號相關', '收不到帳單', '為什麼我沒有收到我的帳單？', GETDATE(), 1),
+    ('其他問題', '建議新功能', '我希望能夠增加一個新功能，讓使用者能夠更方便地使用系統。', GETDATE(), 1),
+    ('其他問題', '客服聯絡方式', '請問客服的聯絡方式是什麼？', GETDATE(), 0);
+
+	select * from CSQAData;
+	select * from CSForm;
+
+	--清空資料表
+	TRUNCATE TABLE CSForm
+	TRUNCATE TABLE CSQAData

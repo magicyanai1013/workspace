@@ -29,19 +29,33 @@ public class QADataService {
     public Optional<CSQAData> getQAById(Integer CSQADataId) {
         return csqar.findById(CSQADataId);
     }
-	
-	// 新增常見問題
-	public CSQAData addQA(String CSQADataSort, String CSQADataTitle, String CSQADataContent,Date CSQADataDATE) {
+    
+    // 新增方法：根據分類和顯示狀態查詢
+    public List<CSQAData> getQABySort(String sort) {
+        return csqar.findByCSQADataSortAndCSQADataChack(sort, 1);
+    }
+    
+    // 新增方法：獲取所有可顯示的Q&A
+    public List<CSQAData> getAllVisibleQA() {
+        return csqar.findByCSQADataChack(1);
+    }
+
+    // 新增常見問題
+    public CSQAData addQA(String CSQADataSort, String CSQADataTitle, String CSQADataContent) {
         CSQAData csqa = new CSQAData();
         csqa.setCSQADataSort(CSQADataSort);
         csqa.setCSQADataTitle(CSQADataTitle);
         csqa.setCSQADataContent(CSQADataContent);
-        csqa.setCSQADataDATE(new Date());  // 設置當前時間
-        csqa.setCSQADataChack(0); // 預設未解決
+
+        // 設置當前時間為日期
+        csqa.setCSQADataDATE(new Date());  // 自動設置為當前時間
+
+        csqa.setCSQADataChack(0); // 預設為未上架
+
         // 儲存並返回結果
-        return csqar.save(csqa);
+        return csqar.save(csqa);  // 儲存資料並返回
     }
-  
+
     // 更新常見問題
     @Transactional
     public CSQAData updateQAData(Integer csqadataId, CSQAData updatedData) {
@@ -60,4 +74,6 @@ public class QADataService {
 
         return csqar.save(existingData);
     }	
+    
+    
 }

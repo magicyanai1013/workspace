@@ -139,7 +139,7 @@
 		            </div>
 		            <div class="modal-footer">
 		                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
-		                <button type="button" class="btn btn-primary" id="saveBtn">儲存</button>
+		                <button type="button" class="btn btn-primary" id="addQAForm" onclick="addQAForm()">儲存</button>
 		            </div>
 		        </div>
 		    </div>
@@ -152,9 +152,7 @@
 		        <div class="modal-content">
 		            <div class="modal-header">
 		                <h5 class="modal-title" id="editModalLabel">Q&A修改</h5>
-		                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-		                    <span aria-hidden="true">&times;</span>
-		                </button>
+		                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 		            </div>
 		            <div class="modal-body">
 		                <form id="editForm">
@@ -187,8 +185,8 @@
 		                </form>
 		            </div>
 		            <div class="modal-footer">
-		                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-		                <button type="button" id="saveEditBtn" class="btn btn-primary">儲存</button>
+		                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+		                <button type="button" class="btn btn-primary" id="saveEditButton" onclick="saveEdit()">儲存</button>
 		            </div>
 		        </div>
 		    </div>
@@ -199,123 +197,176 @@
 	   	<script src="/js/bootstrap.bundle.min.js"></script>
 	    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 
-		<script>
-		// 定義 API 路徑
-		const apiUrl = "http://localhost:8080/QA_manage/json";
-		
-		// 獲取資料並顯示於表格
-		$(document).ready(function () {
-	    	$.ajax({
-	        url: apiUrl,
-	        method: "GET",
-	        success: function (data) {
-	        let tableBody = $("#qaTable");
-            // 清空表格內容
-            tableBody.empty();
+<script>
+    // 定義 API 路徑
+    const apiUrl = "http://localhost:8080/QA_manage/json";
 
-            // 遍歷資料並插入表格
-            data.forEach(item => {                
-                // 建立表格行
-                const statusText = item.csqadataChack === 1 ? "上架中" : "下架中";
-                const row = `
-                    <tr>
-                        <td>${item.csqadataId}</td>
-                        <td>${item.csqadataSort}</td>
-                        <td>${item.csqadataTitle}</td>
-                        <td>${item.csqadataContent}</td>
-                        <td>${item.csqadataDATE}</td>
-                        <td>${statusText}</td>
-                        <td>
-                            <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editModal" onclick="openEditModal(${item.cSqadataId})">修改</button>
-                        </td>
-                    </tr>
-                `;
-                tableBody.append(row); // 將行插入到表格中
-			            });
-			        }
-			    });
-			});
-			
-			// 開啟修改彈出框，並載入資料
-            function openEditModal(CSQADataId) {
-                $.ajax({
-                    url: `/json/QADataId=${CSQADataId}`, // API 用於查詢指定 ID 的資料
-                    method: "GET",
-                    success: function (data) {
-                        // 將資料填入彈出框中的輸入框
-                        $("#editId").val(data.CSQADataId); // 隱藏的 ID 欄位
-                        $("#editSort").val(data.CSQADataSort);
-                        $("#editTitle").val(data.CSQADataTitle);
-                        $("#editContent").val(data.CSQADataContent);
-                        $("#editStatus").val(data.CSQADataChack);
-                        $("#editModal").modal("show"); // 顯示彈出框
-                    },
-                    error: function () {
-                        alert("無法載入資料，請稍後再試！");
-                    }
+    // 獲取資料並顯示於表格
+    $(document).ready(function () {
+        loadData();
+    });
+
+    // 載入資料並插入表格
+    function loadData() {
+        $.ajax({
+            url: apiUrl,
+            method: "GET",
+            success: function (data) {
+                let tableBody = $("#qaTable");
+                // 清空表格內容
+                tableBody.empty();
+
+                // 遍歷資料並插入表格
+                data.forEach(item => {
+                    const statusText = item.csqadataChack === 1 ? "下架中" : "上架中";
+                    const row = `
+                        <tr>
+                            <td>${item.csqadataId}</td>
+                            <td>${item.csqadataSort}</td>
+                            <td>${item.csqadataTitle}</td>
+                            <td>${item.csqadataContent}</td>
+                            <td>${item.csqadataDATE}</td>
+                            <td>${statusText}</td>
+                            <td>
+                                <button class="btn btn-success btn-sm" onclick="openEditModal(${item.csqadataId})">修改</button>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.append(row);
                 });
+            },
+            error: function () {
+                alert("資料載入失敗，請稍後再試！");
             }
+        });
+    }
 
-			
-			
-	    
-			// 儲存修改後的資料
-			function saveEdit() {
-			    const id = $("#editId").val();
-			    const updatedData = {
-			        csqadataSort: $("#editSort").val(),
-			        csqadataTitle: $("#editTitle").val(),
-			        csqadataContent: $("#editContent").val(),
-			        csqadataChack: $("#editStatus").val()
-			    };
-			
-			    $.ajax({
-			        url: `${apiUrl}/${id}`, // 假設後端提供更新的 API
-			        method: "PUT",
-			        contentType: "application/json",
-			        data: JSON.stringify(updatedData),
-			        success: function () {
-			            alert("修改成功！");
-			            $("#editModal").modal("hide"); // 關閉彈出框
-			            location.reload(); // 重新載入頁面
-			        },
-			        error: function () {
-			            alert("儲存失敗，請稍後再試！");
-			        }
-			    });
-			}
-						
-			//新增資料按鈕
-			$('#addQAForm').submit(function(e) {
-			    e.preventDefault();
-			    var CSQADataSort = $('#CSQADataSort').val();
-			    var CSQADataTitle = $('#CSQADataTitle').val();
-			    var CSQADataContent = $('#CSQADataContent').val();
-			    var CSQADataDATE = new Date().toISOString();  // 使用 ISO 格式時間
-			
-			    $.ajax({
-			        url: '/form_manage/addQA',
-			        type: 'POST',
-			        data: {
-			            CSQADataSort: CSQADataSort,
-			            CSQADataTitle: CSQADataTitle,
-			            CSQADataContent: CSQADataContent,
-			            CSQADataDATE: CSQADataDATE
-			        },
-			        success: function(response) {
-			            alert('新增成功！');
-			            // 重新載入資料
-			            loadData();
-			        },
-			        error: function() {
-			            alert('新增資料失敗，請稍後再試！');
-			        }
-			    });
-			});
-			
-			
-	    
-	    </script>
+    // 開啟修改彈出框，並載入資料
+    function openEditModal(CSQADataId) {
+        $.ajax({
+            url: `${apiUrl}/QADataId/${CSQADataId}`,
+            method: "GET",
+            success: function (data) {
+                // 確保表單欄位的 ID 正確
+                $("#editCSQADataId").val(data.csqadataId);
+                $("#editCSQADataSort").val(data.csqadataSort);
+                $("#editCSQADataTitle").val(data.csqadataTitle);
+                $("#editCSQADataContent").val(data.csqadataContent);
+                $("#editCSQADataChack").val(data.csqadataChack);
+                $("#editModal").modal("show"); // 顯示彈出框
+            },
+            error: function () {
+                alert("無法載入資料，請稍後再試！");
+            }
+        });
+    }
+
+    // 儲存修改後的資料
+    function saveEdit() {
+    const id = $("#editCSQADataId").val();
+    const updatedData = {
+        csqadataSort: $("#editCSQADataSort").val(),
+        csqadataTitle: $("#editCSQADataTitle").val(),
+        csqadataContent: $("#editCSQADataContent").val(),
+        csqadataChack: parseInt($("#editCSQADataChack").val())
+    };
+
+    $.ajax({
+    url: `http://localhost:8080/QA_manage/json/${id}`, // 使用動態 ID
+    method: "PUT",
+    contentType: "application/json", // 必須設置為 JSON 格式
+    data: JSON.stringify({
+        csqadataSort: $("#editCSQADataSort").val(),
+        csqadataTitle: $("#editCSQADataTitle").val(),
+        csqadataContent: $("#editCSQADataContent").val(),
+        csqadataChack: $("#editCSQADataChack").val()
+    }),
+    success: function (response) {
+        alert("修改成功！");
+        location.reload(); // 刷新頁面
+    },
+    error: function (xhr, status, error) {
+        alert(`儲存失敗：${xhr.statusText}`);
+        console.error("詳細錯誤：", xhr);
+    }
+});
+}
+
+
+    // 新增資料
+function addQAForm() {
+    var formSort = document.getElementById("formSort").value;
+    var formTitle = document.getElementById("formTitle").value;
+    var formContent = document.getElementById("formContent").value;
+
+    if (!formSort || !formTitle || !formContent) {
+        alert("請填寫所有欄位！");
+        return;
+    }
+
+    var data = {
+        CSQADataSort: formSort,
+        CSQADataTitle: formTitle,
+        CSQADataContent: formContent
+    };
+
+    fetch("/QA_manage/addQA", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text();
+    })
+    .then(result => {
+        alert(result);
+        // 強制關閉模態框
+        var modalElement = document.getElementById('addModal');
+        var modal = bootstrap.Modal.getInstance(modalElement);
+        if (modal) {
+            modal.hide();
+        }
+        
+        // 移除模態框遮罩
+        var modalBackdrop = document.querySelector('.modal-backdrop');
+        if (modalBackdrop) {
+            modalBackdrop.remove();
+        }
+
+        // 重置表單
+        document.getElementById("addForm").reset();
+        
+        // 移除 body 上可能的類別
+        document.body.classList.remove('modal-open');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('新增失敗，請檢查您的輸入');
+        
+        // 即使出錯也嘗試關閉模態框
+        var modalElement = document.getElementById('addModal');
+        var modal = bootstrap.Modal.getInstance(modalElement);
+        if (modal) {
+            modal.hide();
+        }
+        
+        // 移除模態框遮罩
+        var modalBackdrop = document.querySelector('.modal-backdrop');
+        if (modalBackdrop) {
+            modalBackdrop.remove();
+        }
+        
+        // 移除 body 上可能的類別
+        document.body.classList.remove('modal-open');
+    });
+}
+</script>
+
 
 </body>
 </html>
