@@ -2,20 +2,14 @@ package com.example.demo.model;
 
 import java.util.Date;
 import java.util.List;
-
-import org.springframework.format.annotation.DateTimeFormat;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -64,8 +58,10 @@ public class CSform {
     @Column(name = "CSFormReply")
     private String CSFormReply;
     // 用於儲存回覆內容
-    
 
+    @Column(name = "userId")
+    private Integer userId;
+    
     // 以下是 getter 和 setter 方法，用於取得和設定屬性值
 
     public Integer getCSFormId() {
@@ -123,11 +119,18 @@ public class CSform {
     public void setCSFormReply(String cSFormReply) {
         this.CSFormReply = cSFormReply;
     }
+    
 
 	public static void addAttribute(String string, List<CSform> csForms) {
 		// TODO Auto-generated method stub
 		
 	}
 
+	 public Integer getUserId() {
+	      return userId;
+	    }
 
+	 public void setUserId(Integer userId) {
+	      this.userId = userId;
+	    }
 }

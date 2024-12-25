@@ -5,41 +5,44 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class CS_Controller {
-	
-//	客服首頁 (http://localhost:8080/CSFrontpage)
-    @GetMapping("/CSFrontpage")
-    public String showCSFrontpage() {
-        return "Customer_Service/CSFrontpage";
+  
+// 	客服表單-管理 (http://localhost:8080/form_manage)
+    @GetMapping("/form_manage")
+    public String showform_manage() {
+        return "Customer_Service/form_manage";
     }
     
-//	常見問題-帳號相關 (http://localhost:8080/CSQAData/account)
-    @GetMapping("/CSQAData/account")
-    public String showCSQAaccount() {
-        return "Customer_Service/QA_account";
+// 	常見問題-管理 (http://localhost:8080/QA_manage)
+    @GetMapping("/QA_manage")
+    public String showQA_manage() {
+        return "Customer_Service/QA_manage";
     }
     
-//	常見問題-平台守則 (http://localhost:8080/CSQAData/rules)
-    @GetMapping("/CSQAData/rules")
-    public String showCSQArules() {
-        return "Customer_Service/QA_rules";
+//  訊息中心-管理(http://localhost:8080/CSFrontpage/MessageMange)
+    @GetMapping("/CSFrontpage/MessageMange")
+    public String showMessageMange() {
+        return "Customer_Service/Message_mange";
     }
     
-//	常見問題-買家相關 (http://localhost:8080/CSQAData/buyer)
-    @GetMapping("/CSQAData/buyer")
-    public String showCSQAbuyer() {
-        return "Customer_Service/QA_buyer";
+//	客服表單-前台(http://localhost:8080/csform)
+//	因有撰寫邏輯判斷、故內容放置於Controller內
+    
+//	常見問題-前台 (http://localhost:8080/CSQAData/QAShow)
+    @GetMapping("/CSQAData/QAShow")
+    public String showCSQAShow() {
+        return "Customer_Service/QAShow";
     }
     
-//	常見問題-賣家相關 (http://localhost:8080/CSQAData/seller)
-    @GetMapping("/CSQAData/seller")
-    public String showCSQAseller() {
-        return "Customer_Service/QA_seller";
+//  訊息中心-前台 (http://localhost:8080/CSFrontpage/MessageCenter)
+    @GetMapping("/CSFrontpage/MessageCenter")
+    public String showMessageCenter() {
+        return "Customer_Service/MessageCenter";
     }
     
-//	常見問題-其他問題 (http://localhost:8080/CSQAData/other)
-    @GetMapping("/CSQAData/other")
-    public String showCSQAother() {
-        return "Customer_Service/QA_other";
-    }
     
+    
+
+    
+    
+
 }

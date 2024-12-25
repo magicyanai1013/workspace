@@ -7,6 +7,16 @@ select * from CSQAData;
 --清空資料表
 TRUNCATE TABLE CSQAData
 
+-- 建立 CSQA 表格
+CREATE TABLE CSQAData (
+    CSQADataId INT PRIMARY KEY IDENTITY(1,1), -- 主鍵，自動增量
+    CSQADataSort NVARCHAR(30),                -- 分類
+    CSQADataTitle NVARCHAR(30),               -- 標題
+    CSQADataContent NVARCHAR(300),            -- 內容
+    CSQADataDATE Date DEFAULT GETDATE(),      -- 最後修改日期，預設為當前日期
+    CSQADataChack INT                          -- 上架狀態（0=未上架，1=已上架）
+);
+
 --新增資料
 INSERT INTO CSQAData (CSQADataSort, CSQADataTitle, CSQADataContent, CSQADataDATE, CSQADataChack)
 VALUES 

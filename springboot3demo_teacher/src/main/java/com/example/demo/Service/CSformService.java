@@ -8,7 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.Repository.CSformRepository;
+import com.example.demo.Repository.LoginRepository;
 import com.example.demo.model.CSform;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class CSformService {
@@ -16,28 +19,23 @@ public class CSformService {
 	@Autowired
 	private CSformRepository csfr;
 
-	public CSform addform(String CSFormSort, String CSFormTitle, String CSFormContent,Date CSFormDate) {
-        CSform csf = new CSform();
-        csf.setCSFormSort(CSFormSort);
-        csf.setCSFormTitle(CSFormTitle);
-        csf.setCSFormContent(CSFormContent);
-        csf.setCSFormDate(new Date());  // 設置當前時間
-        // 儲存並返回結果
-        return csfr.save(csf);
+	@Transactional
+    public CSform addform(String CSFormSort, String CSFormTitle, String CSFormContent, Date CSFormDate, Integer userId) {
+        try {
+            CSform csf = new CSform();
+            csf.setCSFormSort(CSFormSort);
+            csf.setCSFormTitle(CSFormTitle);
+            csf.setCSFormContent(CSFormContent);
+            csf.setCSFormDate(CSFormDate);
+            csf.setUserId(userId);
+            csf.setCSFormChack(0); // 設定初始狀態
+            
+            return csfr.save(csf);
+        } catch (Exception e) {
+            throw new RuntimeException("保存表單失敗: " + e.getMessage());
+        }
     }
-	
-	public CSform findcsfById(Integer CSFormId) {
-		Optional<CSform> optional = csfr.findById(CSFormId);
-		if(optional.isPresent()) {
-			return optional.get();
-		}
-		return null;
-	}
-	
-	public List<CSform> findAllcsf(){
-		return csfr.findAll();
-	}
-	
+
 	 // 提交回覆並更新狀態
     public boolean submitReply(int CSFormId, String CSFormReply, int CSFormChack) {
         // 查詢指定的表單

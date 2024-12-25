@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <title>訊息中心管理</title>
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+    }
+    .content-wrapper {
+        width: 90%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
+    </style>
+</head>
+<body>
+  	<div th:replace="~{layout/saHeader}"></div>
+    
+    <div class="content-wrapper">
+        <h1 class="text-center">
+            <span class="btn header-btn" style="font-size: 25px;">訊息中心管理</span>
+        </h1>
+        <!-- 分類篩選 -->
+        <div class="mt-4">
+            <div class="mb-4" style="display: flex; gap: 10px; align-items: center;">
+                <label for="categoryFilter" style="flex-shrink: 0;">訊息分類:</label>
+                <select id="categoryFilter" class="form-control" style="width: 200px;">
+				    <option value="all">全部分類</option>
+				    <option value="客服通知">客服通知</option>
+				    <option value="徵物通知">徵物通知</option>
+				    <option value="官方通知">官方通知</option>
+				    <option value="系統通知">系統通知</option>
+				    <option value="其他通知">其他通知</option>
+				</select>
+                <button type="button" class="btn btn-primary" id="new" data-bs-toggle="modal" data-bs-target="#addModal" style="margin-left: auto;">新增項目</button>
+            </div>
+
+            <div class="mb-4">
+                <div class="table-responsive">
+                    <table id="faTable" class="table table-striped">
+                        <thead>
+						    <tr>
+						        <th style="width:10%">訊息ID</th>
+						        <th style="width:10%">使用者ID</th>
+						        <th style="width:10%">訊息分類</th>
+						        <th style="width:15%">訊息標題</th>
+						        <th style="width:25%">訊息內容</th>
+						        <th style="width:15%">發送時間</th>
+						    </tr>
+						</thead>
+                        <tbody id="listform">
+                            <!-- 資料將通過 JavaScript 動態插入 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+		    <!-- 新增訊息 Modal -->
+		<div class="modal fade" id="addModal" tabindex="-1">
+		    <div class="modal-dialog">
+		        <div class="modal-content">
+		            <div class="modal-header">
+		                <h5 class="modal-title">新增訊息</h5>
+		                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+		            </div>
+		            <div class="modal-body">
+		                <form id="messageForm">
+		                    <div class="mb-3">
+		                        <label for="messageUserId" class="form-label">發送使用者ID</label>
+		                        <input type="number" class="form-control" id="messageUserId" required>
+		                    </div>
+		                    <div class="mb-3">
+		                        <label for="messageSort" class="form-label">訊息分類</label>
+		                        <select class="form-control" id="messageSort" required>
+		                            <option value="客服通知">客服通知</option>
+		                            <option value="徵物通知">徵物通知</option>
+		                            <option value="官方通知">官方通知</option>
+		                            <option value="系統通知">系統通知</option>
+		                            <option value="其他通知">其他通知</option>
+		                        </select>
+		                    </div>
+		                    <div class="mb-3">
+		                        <label for="messageTitle" class="form-label">訊息標題</label>
+		                        <input type="text" class="form-control" id="messageTitle" required>
+		                    </div>
+		                    <div class="mb-3">
+		                        <label for="messageContent" class="form-label">訊息內容</label>
+		                        <textarea class="form-control" id="messageContent" rows="3" required></textarea>
+		                    </div>
+		                </form>
+		            </div>
+		            <div class="modal-footer">
+		                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+		                <button type="button" class="btn btn-primary" id="saveMessage">儲存</button>
+		            </div>
+		        </div>
+		    </div>
+		</div>
+    
+    <div th:replace="~{Customer_Service/html/footer}"></div>
+
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    
+    <script>
+      $(document).ready(function() {
+    // 載入訊息
+    function loadMessages() {
+        const category = $('#categoryFilter').val();
+        $.ajax({
+            url: '/messages',
+            method: 'GET',
+            data: { category: category },
+            success: function(messages) {
+                displayMessages(messages);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error loading messages:', error);
+                alert('載入訊息時發生錯誤');
+            }
+        });
+    }
+
+    // 顯示訊息
+// 修改顯示訊息的函數
+function displayMessages(messages) {
+    const tbody = $('#listform');
+    tbody.empty();
+    const selectedCategory = $('#categoryFilter').val();
+
+    messages.forEach(function(message) {
+        console.log('處理訊息：', message); // 新增除錯日誌
+        // 修改判斷條件，確保使用正確的屬性名稱
+        if (selectedCategory === 'all' || message.messageSort === selectedCategory) {
+            const row = $('<tr>').append(
+                $('<td>').text(message.messageId),
+                $('<td>').text(message.messageUserId),
+                $('<td>').text(message.messageSort), // 確保使用正確的屬性名稱
+                $('<td>').text(message.messageTitle),
+                $('<td>').text(message.messageContent),
+                $('<td>').text(new Date(message.messageDate).toLocaleDateString('zh-TW'))
+            );
+            tbody.append(row);
+        }
+    });
+}
+
+// 修改儲存訊息的處理
+$('#saveMessage').click(function() {
+    const messageData = {
+        messageUserId: parseInt($('#messageUserId').val()),
+        messageSort: $('#messageSort').val(),
+        messageTitle: $('#messageTitle').val(),
+        messageContent: $('#messageContent').val()
+    };
+
+    $.ajax({
+        url: '/messages',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(messageData),
+        success: function(response) {
+            // 先重置表單
+            $('#messageForm')[0].reset();
+            
+            // 正確關閉 Modal
+            const modalElement = document.getElementById('addModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalElement);
+            modalInstance.hide();
+            
+            // 強制清除 modal 相關的所有效果
+            setTimeout(function() {
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+                
+                // 移除背景遮罩
+                const backdrops = document.getElementsByClassName('modal-backdrop');
+                while(backdrops.length > 0) {
+                    backdrops[0].parentNode.removeChild(backdrops[0]);
+                }
+                
+                // 重新載入訊息列表
+                loadMessages();
+            }, 100);
+        },
+        error: function(xhr, status, error) {
+            console.error('新增訊息失敗：', error);
+            console.error('錯誤詳情：', xhr.responseText);
+            alert('新增訊息失敗：' + error);
+        }
+    });
+});
+
+// 監聽 Modal 隱藏事件
+$('#addModal').on('hidden.bs.modal', function () {
+    // 確保 modal 完全關閉後清理
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+    
+    // 移除背景遮罩
+    const backdrops = document.getElementsByClassName('modal-backdrop');
+    while(backdrops.length > 0) {
+        backdrops[0].parentNode.removeChild(backdrops[0]);
+    }
+});
+
+    // 分類篩選變更事件
+    $('#categoryFilter').change(function() {
+        loadMessages();
+    });
+
+    // 初始載入
+    
+    loadMessages();
+});
+
+    </script>
+</body>
+</html>

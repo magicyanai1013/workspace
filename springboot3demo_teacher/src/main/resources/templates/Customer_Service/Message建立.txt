@@ -1,0 +1,34 @@
+-- 使用 ChiikawaGame 資料庫
+USE ChiikawaGame;
+
+--清空資料表
+TRUNCATE TABLE Message
+
+--查詢
+select * from Message;
+
+-- 建立 Message 表格
+
+CREATE TABLE Message (
+    MessageId INT PRIMARY KEY IDENTITY(1,1), -- 主鍵，自動增量
+MessageformId int, --表單ID
+MessageuserId int, -- 訊息收件者ID
+MessageSort NVARCHAR(30), -- 訊息分類
+    MessageTitle NVARCHAR(30),               -- 訊息標題
+    MessageContent NVARCHAR(300),            -- 訊息內容
+    MessageDate DATE DEFAULT GETDATE(),      -- 訊息傳送日期
+);
+
+--新增資料
+INSERT INTO Message (MessageformId, MessageuserId, MessageSort, MessageTitle, MessageContent)
+VALUES
+(1, 1, '客服通知', '系統維護的通知', '親愛的使用者，請注意我們將進行系統維護，期間可能會無法使用部分功能。'),
+(2, 2, '徵物通知', '物品遺失公告', '我們發現有物品丟失，請失主儘速聯繫我們進行認領。'),
+(3, 3, '官方通知', '會員專屬優惠', '感謝您的支持，您已獲得本月專屬優惠，請登入查看詳細資訊。'),
+(4, 4, '系統通知', '密碼重設請求', '請確認您是否要求重設密碼，如果有問題，請聯繫客服。'),
+(5, 5, '其他通知', '新功能發布', '我們已經新增了一些功能，詳細請參閱更新日志。'),
+(6, 6, '客服通知', '帳戶安全提示', '您的帳戶發現異常登錄嘗試，建議立即更改密碼以保障安全。'),
+(7, 7, '徵物通知', '失物招領', '如有任何失物，請於系統上進行查詢或聯絡客服。'),
+(8, 8, '官方通知', '活動參與確認', '感謝您參加我們的活動，您的報名已經確認，期待與您見面！'),
+(9, 9, '系統通知', '系統升級通知', '系統升級將於今晚進行，請提前保存您的工作。'),
+(10, 10, '其他通知', '假期客服支持時間調整', '假期期間客服支持時間將有所調整，請提前安排您的需求。');

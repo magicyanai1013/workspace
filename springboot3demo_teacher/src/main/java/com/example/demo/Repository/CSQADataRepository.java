@@ -1,9 +1,7 @@
 package com.example.demo.Repository;
 
 import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
-
 import com.example.demo.model.CSQAData;
 
 // 定義一個介面 CSFormRepository，繼承 JpaRepository 來進行 CSForm 的 CRUD 操作
