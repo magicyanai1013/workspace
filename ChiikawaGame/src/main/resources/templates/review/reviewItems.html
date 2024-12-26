@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-hant-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>評價商品</title>
+    <style>
+        .star-rating .fa-star {
+            color: gray;
+            cursor: pointer;
+        }
+        .star-rating .fa-star.active {
+            color: gold;
+        }
+    
+        .image-preview-list {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0;
+            display: flex;
+        }
+        .image-preview-list li {
+            margin-right: 10px;
+            position: relative;
+        }
+        .image-preview-list li img {
+            max-width: 100px;
+            max-height: 100px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 5px;
+        }
+        .image-preview-list li .remove-image {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: red;
+            color: white;
+            font-size: 12px;
+            border-radius: 50%;
+            padding: 2px 5px;
+            cursor: pointer;
+        }
+    
+        .review-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .review-info h6 {
+            font-weight: bold;
+            margin-right: 5px;
+            margin-bottom: 0;
+        }
+        .review-info span {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">訂單列表</h1>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>訂單編號</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>
+                        <button class="btn btn-primary review-btn" data-order-id="1">評價</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>
+                        <button class="btn btn-primary review-btn" data-order-id="2">評價</button>
+                    </td>
+                </tr>
+                <!-- 其他訂單項目 -->
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="modal fade" id="reviewModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">商品評價</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="reviewForm">
+                        <div id="items-container">
+                            <p>正在載入商品資料...</p>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-success" id="submitReview">送出評價</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const MAX_IMAGES = 5;
+            const reviewModal = new bootstrap.Modal(document.getElementById('reviewModal'));
+            const itemsContainer = document.getElementById('items-container');
+            let currentOrderId = null;
+
+            // 圖片預覽和刪除功能
+            function previewImages(input) {
+                const previewList = input.closest('.mb-3').querySelector('.image-preview-list');
+                previewList.innerHTML = '';
+
+                if (input.files.length > MAX_IMAGES) {
+                    alert(`最多只能上傳 ${MAX_IMAGES} 張圖片`);
+                    input.value = '';
+                    return;
+                }
+
+                Array.from(input.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const li = document.createElement('li');
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        const removeBtn = document.createElement('span');
+                        removeBtn.className = 'remove-image';
+                        removeBtn.textContent = '✕';
+                        removeBtn.onclick = function() {
+                            li.remove();
+                            input.value = '';
+                        };
+                        li.appendChild(img);
+                        li.appendChild(removeBtn);
+                        previewList.appendChild(li);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            // 星星評分功能
+            function setupStarRating(container) {
+                const stars = container.querySelectorAll('.fa-star');
+                stars.forEach(star => {
+                    star.addEventListener('click', function() {
+                        const rating = this.dataset.value;
+                        stars.forEach(s => {
+                            s.classList.remove('active');
+                            if (parseInt(s.dataset.value) <= parseInt(rating)) {
+                                s.classList.add('active');
+                            }
+                        });
+                        container.closest('.mb-3')
+                            .querySelector('input[name="reviewEvaluation"]')
+                            .value = rating;
+                    });
+                });
+            }
+
+            // 檢查評論狀態
+            async function checkReviewStatus() {
+                const buyerId = 101; // 假設當前登入的買家ID
+                const reviewButtons = document.querySelectorAll('.review-btn');
+
+                reviewButtons.forEach(async btn => {
+                    const orderId = btn.dataset.orderId;
+                    try {
+                        const response = await fetch(`http://localhost:8080/reviews/checkReviewExist?reviewBuyerId=${buyerId}&reviewOrderId=${orderId}`);
+                        const data = await response.json();
+                        
+                        if (!data.canReview) {
+                            btn.disabled = true;
+                            btn.classList.replace('btn-primary', 'btn-secondary');
+                            btn.textContent = '已評價';
+                        }
+                    } catch (error) {
+                        console.error('無法檢查評論狀態:', error);
+                    }
+                });
+            }
+
+            // 載入商品資料
+            async function loadItems(orderId) {
+                try {
+                    const response = await fetch('http://localhost:8080/reviews/' + orderId + '/items');
+                    const items = await response.json();
+
+                    if (items && items.length > 0) {
+                        const content = items.map(item => `
+                            <div class="mb-3" 
+                                data-order-item-id="${item.orderItemId}" 
+                                data-item-id="${item.itemId}">
+                                <div class="review-info">
+                                    <h6>賣家:</h6>
+                                    <span>${item.sellerId}</span>
+                                </div>
+                                <div class="review-info">
+                                    <h6>商品:</h6>
+                                    <span>${item.itemName}</span>
+                                </div>
+                                <label class="btn btn-light" style="margin-bottom: 10px;">
+                                    <i class="fa fa-upload"></i> 上傳圖片
+                                    <input type="file" multiple name="files" style="display:none;" class="review-image" accept="image/*">
+                                </label>
+                                <ul class="image-preview-list"></ul>
+                                <label class="form-label" style="font-weight: bold;">評價(1-5分)</label>
+                                <div class="star-rating" style="margin-bottom: 10px;">
+                                    <i class="fa fa-star" data-value="1"></i>
+                                    <i class="fa fa-star" data-value="2"></i>
+                                    <i class="fa fa-star" data-value="3"></i>
+                                    <i class="fa fa-star" data-value="4"></i>
+                                    <i class="fa fa-star" data-value="5"></i>
+                                </div>
+                                <input type="hidden" name="reviewEvaluation" required>
+                                <label class="form-label" style="font-weight: bold;">評論內容</label>
+                                <textarea class="form-control" name="reviewComment" 
+                                        maxlength="300" 
+                                        placeholder="請輸入300字以內文章內容" 
+                                        style="height: 150px; resize: none;" 
+                                        required></textarea>
+                            </div><hr/>`
+                        ).join('');
+                        
+                        itemsContainer.innerHTML = content;
+
+                        // 設置事件監聽
+                        document.querySelectorAll('.review-image').forEach(input => {
+                            input.addEventListener('change', function() {
+                                previewImages(this);
+                            });
+                        });
+
+                        document.querySelectorAll('.star-rating').forEach(container => {
+                            setupStarRating(container);
+                        });
+                    } else {
+                        itemsContainer.innerHTML = '<p>此訂單無商品資料。</p>';
+                    }
+                } catch (error) {
+                    itemsContainer.innerHTML = '<p>無法載入商品資料，請稍後再試。</p>';
+                }
+            }
+
+            // 送出評論
+            async function submitReview() {
+                let isValid = true;
+
+                // 驗證
+                document.querySelectorAll('[data-item-id]').forEach(item => {
+                    const rating = item.querySelector('input[name="reviewEvaluation"]').value;
+                    const comment = item.querySelector('textarea[name="reviewComment"]').value || '';
+
+                    if (!rating) {
+                        isValid = false;
+                        alert('請為每個商品選擇評分');
+                        item.querySelector('.star-rating .fa-star').focus();
+                        return;
+                    }
+
+                    if (comment.length > 300) {
+                        isValid = false;
+                        alert('評論不可超過300字');
+                        return;
+                    }
+                });
+
+                if (!isValid) return;
+
+                const errorItems = [];
+                const items = document.querySelectorAll('[data-item-id]');
+                
+                for (const item of items) {
+                    const orderItemId = item.dataset.orderItemId;
+                    const itemId = item.dataset.itemId;
+                    const rating = item.querySelector('input[name="reviewEvaluation"]').value;
+                    const comment = item.querySelector('textarea[name="reviewComment"]').value || '';
+                    const images = item.querySelector('.review-image').files;
+
+                    const formData = new FormData();
+                    formData.append('reviewEvaluation', rating);
+                    formData.append('reviewComment', comment);
+                    formData.append('reviewItemId', itemId);
+
+                    if (images.length > 0) {
+                        Array.from(images).forEach(file => {
+                            formData.append('files', file);
+                        });
+                    } else {
+                        formData.append('files', new Blob());
+                    }
+
+                    try {
+                        await fetch('http://localhost:8080/reviews/add/' + currentOrderId + '/items/' + orderItemId, {
+                            method: 'POST',
+                            body: formData
+                        });
+                    } catch (error) {
+                        errorItems.push(orderItemId);
+                    }
+                }
+
+                if (errorItems.length === 0) {
+                    alert('所有商品評價成功！');
+                    const reviewBtn = document.querySelector(`.review-btn[data-order-id="${currentOrderId}"]`);
+                    reviewBtn.disabled = true;
+                    reviewBtn.classList.replace('btn-primary', 'btn-secondary');
+                    reviewBtn.textContent = '已評價';
+                    reviewModal.hide();
+                } else {
+                    const failedItemNames = errorItems.map(itemId => {
+                        return document.querySelector(`[data-item-id="${itemId}"] h5`).textContent;
+                    }).join('、');
+                    alert(`以下商品評價失敗：${failedItemNames}，請重試。`);
+                }
+            }
+
+            // 綁定評價按鈕事件
+            document.querySelectorAll('.review-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (this.disabled) return;
+                    
+                    currentOrderId = this.dataset.orderId;
+                    loadItems(currentOrderId);
+                    reviewModal.show();
+                });
+            });
+
+            // 綁定送出評價按鈕事件
+            document.getElementById('submitReview').addEventListener('click', submitReview);
+
+            // 初始化檢查評論狀態
+            checkReviewStatus();
+        });
+    </script>
+</body>
+</html>

@@ -1,15 +1,23 @@
-1225
+1.客服表單管理頁面 (http://localhost:8080/form_manage)
 
-1.客服表單管理頁面
+建置完成
 
-所有功能及頁面建置完成
+2.客服表單填寫頁面(http://localhost:8080/csform)
 
-2.Q&A表單管理頁面
+建置完成
 
-3.Q&A顯示畫面
+3.Q&A表單管理頁面 (http://localhost:8080/QA_manage)
 
-所有功能及頁面建置完成
+建置完成
 
-4.消息中心(前台+後台)
+4.Q&A顯示頁面(http://localhost:8080/CSQAData/QAShow)
 
-前後台完成，目前待新增收購文章聯絡的新增消息即可
+建置完成
+
+5.消息中心管理頁面(http://localhost:8080/CSFrontpage/MessageMange)
+
+建置完成
+
+6.消息中心顯示畫面 (http://localhost:8080/CSFrontpage/MessageCenter)
+
+建置完成
